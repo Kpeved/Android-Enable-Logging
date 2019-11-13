@@ -1,0 +1,94 @@
+//////////////  INVALID RESOURCE WORKAROUND  //////////////
+
+// This code section plus the contents of this project's 'aapt2' directory make the Android
+// build system tolerant of some types of invalid resources, such as file-based resources
+// that have invalid names. This is a temporary workaround; a better solution is planned.
+
+// Note that this code section must execute before the DexPatcher plugin is applied.
+
+import com.android.SdkConstants
+
+static def getPlatformDir() {
+    switch (SdkConstants.CURRENT_PLATFORM) {
+        case SdkConstants.PLATFORM_LINUX: return 'linux'
+        case SdkConstants.PLATFORM_DARWIN: return 'macosx'
+        case SdkConstants.PLATFORM_WINDOWS: return 'windows'
+        default: throw new RuntimeException('Unsupported platform')
+    }
+}
+
+project.ext['android.disableResourceValidation'] = 'true'
+project.ext['android.aapt2FromMavenOverride'] = "aapt2/$platformDir/$SdkConstants.FN_AAPT2"
+
+///////////////////////////////////////////////////////////
+
+
+apply plugin: 'com.github.lanchon.dexpatcher.patched-application'
+
+dexpatcherConfig {
+    patchedApplication {
+        printAppInfo = true;
+    }
+
+    dexpatcher {
+        multiDex = true
+        verbosity = VERBOSE
+        logStats = true
+    }
+}
+
+android {
+    compileSdkVersion 29
+    //buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        // The 'package' attribute in the patched app manifest must be different from the
+        // source app ID to support class generation (R and BuildConfig), but here you can
+        // override the exported patched app ID to match the source.
+        applicationId 'com.lolkek.secure'
+
+        // You must set these fields to match or be compatible with the corresponding data
+        // of the source app. (Data is displayed when the source apk library is built.)
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName '1.0'
+    }
+
+    lintOptions {
+        disableLintTasks true
+        //checkReleaseBuilds false
+    }
+
+    packagingOptions{
+        exclude 'androidsupportmultidexversion.txt'
+    }
+}
+
+dependencies {
+    // We import an Android library, a file chooser, just for fun. This pulls in all its
+    // resources that will be transparently merged, like other resources from this project,
+    // with those of the source app. Each component will have its own independent 'R' class.
+    // The numeric IDs of the resources coming from the source app will be kept constant.
+    implementation('ru.bartwell:exfilepicker:1.8') {
+        // But the imported library has a transitive dependency on a module that is already
+        // present in the source app. So we exclude it from the import, keeping the source
+        // app's version. Alternatively we could delete the copy brought in by the source
+        // app using DexPatcher package annotations.
+        exclude module: 'support-v4'
+    }
+
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'com.android.support:multidex:1.0.3'
+}
+repositories {
+    mavenCentral()
+}
+
+void disableLintTasks(boolean disableTasks) {
+    if (disableTasks) {
+        tasks.withType(com.android.build.gradle.tasks.LintBaseTask).configureEach {
+            enabled = false
+        }
+    }
+}

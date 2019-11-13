@@ -1,0 +1,38 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="hack.getid"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--Source and patched manifests are merged according to standard build rules:
+        http://tools.android.com/tech-docs/new-build-system/user-guide/manifest-merger -->
+
+    <!--We let the application tag inherit its attributes from the source app.-->
+    <application>
+<!--        android:name="tech.pegb.tellmo.app.TellmoApplication"-->
+<!--        android:testOnly="true"-->
+<!--        android:allowBackup="false"-->
+<!--        android:supportsRtl="true"-->
+<!--        android:usesCleartextTraffic="true"-->
+<!--        android:appComponentFactory="androidx.core.app.CoreComponentFactory">-->
+
+<!--        &lt;!&ndash;As a convenience, due to this bug in Android Studio:-->
+<!--            https://code.google.com/p/android/issues/detail?id=168306-->
+<!--            We surface part of the default activity to the main manifest-->
+<!--            so that Studio will not complain when launching the app.&ndash;&gt;-->
+<!--        <activity android:name="makeinfo.com.getid.MainActivity">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN"/>-->
+<!--                <category android:name="android.intent.category.LAUNCHER"/>-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+<!--        &lt;!&ndash;This activity is required by the file chooser we imported:-->
+<!--            https://github.com/bartwell/ExFilePicker#usage &ndash;&gt;-->
+<!--        <activity-->
+<!--            android:name="ru.bartwell.exfilepicker.ExFilePickerActivity"-->
+<!--            android:configChanges="orientation|screenSize"-->
+<!--            android:theme="@style/ExFilePickerThemeDark" />-->
+
+    </application>
+
+    <!--We add this permission to let the file chooser poke around storage.-->
+
+</manifest>
